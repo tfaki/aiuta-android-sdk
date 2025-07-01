@@ -1,7 +1,5 @@
 package com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +14,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -27,134 +22,92 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
-import com.aiuta.fashionsdk.configuration.features.share.AiutaShareFeature
-import com.aiuta.fashionsdk.tryon.compose.domain.internal.share.rememberShareManagerV2
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.components.icons.AiutaLoadingComponent
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.components.zoomable.zoomable
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.controller.composition.LocalController
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.share.ShareElement
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.share.onShare
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.ui.BaseSharedImageScreen
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.utils.animateColorAsLerp
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.utils.animateDpAsLerp
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.utils.animateOffsetAsLerp
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.utils.animateSizeAsLerp
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.FitterContentScale
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.ZoomImageController
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.closeZoomImageScreen
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.isTransitionActiveListener
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.utils.TRANSITION_ANIM_DURATION
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.utils.toDp
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.utils.toIntOffset
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.utils.features.dataprovider.safeInvoke
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.utils.features.provideFeature
 import com.aiuta.fashionsdk.tryon.compose.uikit.composition.LocalTheme
 import com.aiuta.fashionsdk.tryon.compose.uikit.resources.AiutaIcon
 import com.aiuta.fashionsdk.tryon.compose.uikit.resources.AiutaImage
-import com.aiuta.fashionsdk.tryon.compose.uikit.resources.painter.painterResource
 import com.aiuta.fashionsdk.tryon.compose.uikit.utils.clickableUnindicated
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun ZoomedImageScreen(
     modifier: Modifier = Modifier,
     screenState: ZoomImageController,
-    onTransitionFinished: () -> Unit,
 ) {
-    val theme = LocalTheme.current
-    val isTransitionActive = screenState.isTransitionActiveListener()
+    BaseSharedImageScreen(
+        controller = screenState,
+    ) { sharedElementProgress ->
+        val theme = LocalTheme.current
 
-    val initialOffset =
-        remember {
-            screenState.sharedImage.value.parentImageOffset.copy(
-                x = screenState.sharedImage.value.parentImageOffset.x,
+        val initialOffset = remember {
+            screenState.transitionModel.value.parentImageOffset.copy(
+                x = screenState.transitionModel.value.parentImageOffset.x,
             )
         }
 
-    val sharedElementProgress = remember { Animatable(if (isTransitionActive.value) 0f else 1f) }
-
-    val contentScale =
-        remember {
+        val contentScale = remember {
             FitterContentScale(sharedElementProgress)
         }
 
-    val backgroundColor =
-        remember {
-            derivedStateOf {
-                lerp(
-                    Color.Transparent,
-                    Color.Black,
-                    sharedElementProgress.value,
-                )
-            }
-        }
+        val backgroundColor = animateColorAsLerp(
+            start = Color.Transparent,
+            stop = Color.Black,
+            progress = sharedElementProgress,
+        )
 
-    val interfaceColor =
-        remember {
-            derivedStateOf {
-                lerp(
-                    Color.Transparent,
-                    theme.color.onDark,
-                    sharedElementProgress.value,
-                )
-            }
-        }
+        val interfaceColor = animateColorAsLerp(
+            start = Color.Transparent,
+            stop = theme.color.onDark,
+            progress = sharedElementProgress,
+        )
 
-    val imageOffset =
-        remember {
-            derivedStateOf {
-                lerp(
-                    initialOffset,
-                    Offset.Zero,
-                    sharedElementProgress.value,
-                ).toIntOffset()
-            }
-        }
+        val imageOffset = animateOffsetAsLerp(
+            start = initialOffset,
+            stop = Offset.Zero,
+            progress = sharedElementProgress,
+        )
 
-    val imageSize =
-        remember {
-            derivedStateOf {
-                lerp(
-                    screenState.sharedImage.value.imageSize,
-                    screenState.maxSize,
-                    sharedElementProgress.value,
-                )
-            }
-        }
+        val imageSize = animateSizeAsLerp(
+            start = screenState.transitionModel.value.imageSize,
+            stop = screenState.maxSize,
+            progress = sharedElementProgress,
+        )
 
-    val cornerRadius =
-        remember {
-            derivedStateOf {
-                lerp(
-                    screenState.sharedImage.value.initialCornerRadius,
-                    0.dp,
-                    sharedElementProgress.value,
-                )
-            }
-        }
+        val cornerRadius = animateDpAsLerp(
+            start = screenState.transitionModel.value.initialCornerRadius,
+            stop = 0.dp,
+            progress = sharedElementProgress,
+        )
 
-    LaunchedEffect(isTransitionActive) {
-        launch {
-            sharedElementProgress.animateTo(
-                targetValue = if (isTransitionActive.value) 1f else 0f,
-                animationSpec = tween(durationMillis = TRANSITION_ANIM_DURATION),
-            )
-            onTransitionFinished()
-        }
+        ZoomedImageScreenContent(
+            modifier = modifier,
+            screenState = screenState,
+            backgroundColor = backgroundColor,
+            interfaceColor = interfaceColor,
+            cornerRadius = cornerRadius,
+            contentScale = contentScale,
+            imageOffset = imageOffset,
+            imageSize = imageSize,
+        )
     }
-
-    ZoomedImageScreenContent(
-        modifier = modifier,
-        screenState = screenState,
-        backgroundColor = backgroundColor,
-        interfaceColor = interfaceColor,
-        cornerRadius = cornerRadius,
-        contentScale = contentScale,
-        imageOffset = imageOffset,
-        imageSize = imageSize,
-    )
 }
 
 @Composable
@@ -171,11 +124,7 @@ private fun ZoomedImageScreenContent(
     val controller = LocalController.current
     val theme = LocalTheme.current
 
-    val shareFeature = provideFeature<AiutaShareFeature>()
-
     val scope = rememberCoroutineScope()
-    val shareManager = rememberShareManagerV2()
-    val isShareActive = remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier.background(color = backgroundColor.value),
@@ -194,15 +143,14 @@ private fun ZoomedImageScreenContent(
                         screenState.closeZoomImageScreen(scope)
                     },
                 ),
-            imageUrl = screenState.sharedImage.value.imageUrl,
+            imageUrl = screenState.transitionModel.value.imageUrl,
             shapeDp = cornerRadius.value,
             contentScale = contentScale,
             contentDescription = null,
         )
 
         Row(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .align(Alignment.TopStart)
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
@@ -212,8 +160,7 @@ private fun ZoomedImageScreenContent(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             AiutaIcon(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .size(24.dp)
                     .clickableUnindicated {
                         screenState.closeZoomImageScreen(scope)
@@ -223,13 +170,7 @@ private fun ZoomedImageScreenContent(
                 tint = interfaceColor.value,
             )
 
-            shareFeature?.let {
-                val watermarkPainter = shareFeature
-                    .watermark
-                    ?.images
-                    ?.logo
-                    ?.let { logo -> painterResource(logo) }
-
+            ShareElement {
                 AiutaLoadingComponent(
                     isLoading = isShareActive.value,
                     circleSize = 24.dp,
@@ -238,26 +179,11 @@ private fun ZoomedImageScreenContent(
                     Text(
                         modifier = Modifier
                             .clickableUnindicated(enabled = !isShareActive.value) {
-                                scope.launch {
-                                    isShareActive.value = true
-
-                                    val imageUrls =
-                                        listOfNotNull(screenState.sharedImage.value.imageUrl)
-                                    val skuIds = listOf(controller.activeProductItem.value.id)
-                                    val shareText = shareFeature.dataProvider?.let { provider ->
-                                        provider::getShareText.safeInvoke(skuIds)
-                                    }
-
-                                    shareManager.shareImages(
-                                        content = shareText?.getOrNull(),
-                                        pageId = screenState.sharedImage.value.originPageId,
-                                        productId = controller.activeProductItem.value.id,
-                                        imageUrls = imageUrls,
-                                        watermark = watermarkPainter,
-                                    )
-
-                                    isShareActive.value = false
-                                }
+                                onShare(
+                                    activeProductItem = controller.activeProductItem.value,
+                                    imageUrl = screenState.transitionModel.value.imageUrl,
+                                    pageId = screenState.transitionModel.value.originPageId,
+                                )
                             },
                         text = shareFeature.strings.shareButton,
                         style = theme.button.typography.buttonM,

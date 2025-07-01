@@ -18,13 +18,10 @@ import com.aiuta.fashionsdk.tryon.compose.ui.internal.controller.navigateBack
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.controller.navigateTo
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.navigation.NavigationInitialisation
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.navigation.NavigationScreen
+import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.base.transition.controller.isSharingEnable
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.history.HistoryScreen
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.ZoomedImageScreen
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.ZoomImageState
 import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.closeZoomImageScreen
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.disableZoomState
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.isTransitionActive
-import com.aiuta.fashionsdk.tryon.compose.ui.internal.screens.zoom.controller.isZoomEnable
 import com.aiuta.fashionsdk.tryon.core.AiutaTryOn
 
 /**
@@ -61,22 +58,17 @@ public fun HistoryFlow(
         HistoryScreen(modifier = Modifier.fillMaxSize())
 
         with(controller) {
-            if (zoomImageController.zoomState.value == ZoomImageState.ENABLE) {
+            if (zoomImageController.isSharingEnable()) {
                 ZoomedImageScreen(
                     modifier = modifier,
                     screenState = zoomImageController,
-                    onTransitionFinished = {
-                        if (!zoomImageController.isTransitionActive()) {
-                            zoomImageController.disableZoomState()
-                        }
-                    },
                 )
             }
         }
 
         BackHandler {
             when {
-                controller.zoomImageController.isZoomEnable() -> {
+                controller.zoomImageController.isSharingEnable() -> {
                     controller.zoomImageController.closeZoomImageScreen(scope)
                 }
 
