@@ -46,7 +46,6 @@ kotlin {
                 implementation(libs.coil3.compose)
                 implementation(libs.coil3.network.ktor3)
                 implementation(libs.compose.placeholder)
-                implementation(libs.haze)
                 implementation(libs.kotlinx.atomicfu)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization)

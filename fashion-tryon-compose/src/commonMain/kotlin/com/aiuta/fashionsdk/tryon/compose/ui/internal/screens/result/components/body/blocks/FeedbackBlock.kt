@@ -32,15 +32,11 @@ import com.aiuta.fashionsdk.tryon.compose.ui.internal.utils.features.provideFeat
 import com.aiuta.fashionsdk.tryon.compose.uikit.composition.LocalTheme
 import com.aiuta.fashionsdk.tryon.compose.uikit.resources.AiutaIcon
 import com.aiuta.fashionsdk.tryon.compose.uikit.utils.clickableUnindicated
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 internal fun FeedbackBlock(
     modifier: Modifier = Modifier,
     sessionImage: SessionImageUIModel,
-    hazeState: HazeState,
     generationResultController: GenerationResultController,
     isInterfaceVisible: State<Boolean>,
 ) {
@@ -69,7 +65,6 @@ internal fun FeedbackBlock(
     ) {
         feedbackFeature?.let {
             FeedbackBlockContent(
-                hazeState = hazeState,
                 feedbackFeature = feedbackFeature,
                 onDislikeClick = {
                     controller.bottomSheetNavigator.show(
@@ -92,7 +87,6 @@ internal fun FeedbackBlock(
 @Composable
 private fun FeedbackBlockContent(
     modifier: Modifier = Modifier,
-    hazeState: HazeState,
     feedbackFeature: AiutaTryOnFeedbackFeature,
     onDislikeClick: () -> Unit,
     onLikeClick: () -> Unit,
@@ -103,7 +97,6 @@ private fun FeedbackBlockContent(
     ) {
         ReactionIcon(
             icon = feedbackFeature.icons.like36,
-            hazeState = hazeState,
             onClick = {
                 onLikeClick()
             },
@@ -113,7 +106,6 @@ private fun FeedbackBlockContent(
 
         ReactionIcon(
             icon = feedbackFeature.icons.dislike36,
-            hazeState = hazeState,
             onClick = {
                 onDislikeClick()
             },
@@ -125,7 +117,6 @@ private fun FeedbackBlockContent(
 private fun ReactionIcon(
     modifier: Modifier = Modifier,
     icon: AiutaIcon,
-    hazeState: HazeState,
     onClick: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
@@ -139,15 +130,7 @@ private fun ReactionIcon(
                 color = theme.color.border,
                 shape = CircleShape,
             )
-            .clip(CircleShape)
-            .hazeEffect(hazeState) {
-                val sharedColor = theme.color.background.copy(alpha = 0.4f)
-
-                blurRadius = 10.dp
-                backgroundColor = sharedColor
-                tints = listOf(HazeTint(sharedColor))
-                fallbackTint = HazeTint(sharedColor)
-            },
+            .clip(CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         AiutaIcon(

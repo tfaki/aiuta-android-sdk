@@ -50,8 +50,6 @@ import com.aiuta.fashionsdk.tryon.compose.ui.internal.utils.offsetForPage
 import com.aiuta.fashionsdk.tryon.compose.uikit.composition.LocalTheme
 import com.aiuta.fashionsdk.tryon.compose.uikit.resources.AiutaImage
 import com.aiuta.fashionsdk.tryon.compose.uikit.utils.clickableUnindicated
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeSource
 import kotlin.math.absoluteValue
 
 @Composable
@@ -125,7 +123,6 @@ private fun PagerItem(
 
     val sharedCornerRadius = theme.image.shapes.imageL
 
-    val hazeState = remember { HazeState() }
     var parentImageOffset by remember { mutableStateOf(Offset.Unspecified) }
     var imageSize by remember { mutableStateOf(Size.Zero) }
 
@@ -141,7 +138,6 @@ private fun PagerItem(
             modifier = Modifier
                 .clipToBounds()
                 .fillMaxSize()
-                .hazeSource(hazeState)
                 .onGloballyPositioned { coordinates ->
                     parentImageOffset = coordinates.positionInRoot()
                     imageSize = coordinates.size.toSize()
@@ -168,7 +164,6 @@ private fun PagerItem(
             modifier = Modifier.fillMaxSize(),
             sessionImage = sessionImage,
             generationResultController = generationResultController,
-            hazeState = hazeState,
             pageOffset = pageOffset,
         )
     }
@@ -179,7 +174,6 @@ internal fun BoxScope.PagerItemInterface(
     modifier: Modifier = Modifier,
     sessionImage: SessionImageUIModel,
     generationResultController: GenerationResultController,
-    hazeState: HazeState,
     pageOffset: State<Float>,
 ) {
     val isVisible =
@@ -217,7 +211,6 @@ internal fun BoxScope.PagerItemInterface(
             .align(Alignment.BottomEnd)
             .padding(12.dp),
         sessionImage = sessionImage,
-        hazeState = hazeState,
         generationResultController = generationResultController,
         isInterfaceVisible = isVisible,
     )

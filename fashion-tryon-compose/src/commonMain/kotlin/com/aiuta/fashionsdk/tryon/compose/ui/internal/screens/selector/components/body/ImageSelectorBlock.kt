@@ -11,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aiuta.fashionsdk.tryon.compose.uikit.composition.LocalTheme
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeSource
 
 @Composable
 internal fun ImageSelectorBlock(
@@ -20,7 +18,6 @@ internal fun ImageSelectorBlock(
     uploadPhoto: () -> Unit,
 ) {
     val theme = LocalTheme.current
-    val hazeState = remember { HazeState() }
 
     Box(
         modifier = modifier.background(
@@ -31,7 +28,6 @@ internal fun ImageSelectorBlock(
         ImageSelectorPhoto(
             modifier = Modifier
                 .fillMaxSize()
-                .hazeSource(hazeState),
         )
 
         ImageSelectorBottom(
@@ -40,7 +36,6 @@ internal fun ImageSelectorBlock(
                 .padding(horizontal = 12.dp)
                 .padding(bottom = 24.dp)
                 .align(Alignment.BottomCenter),
-            hazeState = hazeState,
             uploadPhoto = uploadPhoto,
         )
     }

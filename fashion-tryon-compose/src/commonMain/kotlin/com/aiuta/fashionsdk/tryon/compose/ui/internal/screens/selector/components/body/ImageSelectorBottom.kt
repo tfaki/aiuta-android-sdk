@@ -40,14 +40,10 @@ import com.aiuta.fashionsdk.tryon.compose.uikit.button.FashionButton
 import com.aiuta.fashionsdk.tryon.compose.uikit.button.FashionButtonSizes
 import com.aiuta.fashionsdk.tryon.compose.uikit.button.FashionButtonStyles
 import com.aiuta.fashionsdk.tryon.compose.uikit.composition.LocalTheme
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeEffect
 
 @Composable
 internal fun ImageSelectorBottom(
     modifier: Modifier = Modifier,
-    hazeState: HazeState,
     uploadPhoto: () -> Unit,
 ) {
     val controller = LocalController.current
@@ -70,12 +66,6 @@ internal fun ImageSelectorBottom(
     val sharedBlurModifer =
         Modifier
             .clip(sharedButtonSize.shape)
-            .hazeEffect(hazeState) {
-                blurRadius = 10.dp
-                backgroundColor = sharedColor
-                tints = listOf(HazeTint(sharedColor))
-                fallbackTint = HazeTint(sharedColor)
-            }
 
     val bottomState =
         updateTransition(
